@@ -14,7 +14,7 @@ namespace LiveSplit.ResetAllStats
         public string UpdateName => ComponentName;
 
         public ComponentCategory Category => ComponentCategory.Other;
-        public string UpdateURL => "https://raw.githubusercontent.com/CapitaineToinon/LiveSplit.ResetAllStats/master/LiveSplit.DarkSoulsIGT/";
+        public string UpdateURL => "https://raw.githubusercontent.com/CapitaineToinon/LiveSplit.ResetAllStats/master/LiveSplit.ResetAllStats/";
         public string XMLURL => UpdateURL + "Components/update.LiveSplit.ResetAllStats.xml";
 
         public Version Version => Assembly.GetExecutingAssembly().GetName().Version;
