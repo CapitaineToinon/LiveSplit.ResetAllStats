@@ -21,10 +21,10 @@ namespace LiveSplit.ResetAllStats
         {
             this._settings = new RASSettings();
             this._state = state;
-            this._state.OnReset += _state_OnReset;
+            this._state.OnStart += _state_OnStart;
         }
 
-        private void _state_OnReset(object sender, TimerPhase value)
+        private void _state_OnStart(object sender, EventArgs e)
         {
             uint appId = this._settings.AppId;
 
@@ -44,19 +44,19 @@ namespace LiveSplit.ResetAllStats
             }
             else
             {
-                using (var tw = new StreamWriter(path, true))
+                using (var tw = new StreamWriter(path, false))
                 {
                     tw.WriteLine(appId.ToString());
                 }
             }
 
-            if (SteamAPI.IsSteamRunning() != true)
+            if (!SteamAPI.IsSteamRunning())
             {
                 // steam isn't running so we don't do anything
                 return;
             }
 
-            if (SteamAPI.Init() != true)
+            if (!SteamAPI.Init())
             {
                 /**
                  * This could happen for a number of reason but probably 
@@ -70,7 +70,7 @@ namespace LiveSplit.ResetAllStats
                 return;
             }
 
-            if (SteamUserStats.ResetAllStats(true) != true)
+            if (!SteamUserStats.ResetAllStats(true))
             {
                 /**
                  * Please refer to the comment below this line for more information.
