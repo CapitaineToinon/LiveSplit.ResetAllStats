@@ -1,3 +1,5 @@
 LiveSplit.Core.dll
 LiveSplit.ResetAllStats.pdb
 UpdateManager.dll
+Steamworks.NET.dll
+steam_api64.dll
