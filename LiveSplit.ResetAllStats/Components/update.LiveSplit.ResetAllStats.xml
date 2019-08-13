@@ -1,0 +1,12 @@
+﻿<updates>
+  <update version="1.0.0.0">
+    <files>
+      <file path="Components/LiveSplit.ResetAllStats.dll" status="changed" />
+    </files>
+    <changelog>
+      <change>
+        Added LiveSplit self-update supprt.
+      </change>
+    </changelog>
+  </update>
+</updates>
