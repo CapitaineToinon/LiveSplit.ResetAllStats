@@ -1,5 +1,4 @@
 ﻿using System.Xml;
-using Steamworks;
 using LiveSplit.Model;
 using LiveSplit.UI;
 using LiveSplit.UI.Components;
@@ -7,6 +6,8 @@ using System.Windows.Forms;
 using System;
 using LiveSplit.ResetAllStats.UI;
 using System.IO;
+using System.Diagnostics;
+using System.ComponentModel;
 
 namespace LiveSplit.ResetAllStats
 {
@@ -33,56 +34,45 @@ namespace LiveSplit.ResetAllStats
                 return;
             }
 
-            string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "steam_appid.txt");
+            string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Components\\ResetAllStats.exe");
 
-            if (!File.Exists(path))
+            try
             {
-                File.Create(path);
-                TextWriter tw = new StreamWriter(path);
-                tw.WriteLine(appId.ToString());
-                tw.Close();
-            }
-            else
-            {
-                using (var tw = new StreamWriter(path, false))
+                if (!File.Exists(path))
                 {
-                    tw.WriteLine(appId.ToString());
+                    object ob = Properties.Resources.ResourceManager.GetObject("ResetAllStats");
+                    byte[] myResBytes = (byte[])ob;
+
+                    using (FileStream fsDst = new FileStream(path, FileMode.CreateNew, FileAccess.Write))
+                    {
+                        byte[] bytes = myResBytes;
+                        fsDst.Write(bytes, 0, bytes.Length);
+                        fsDst.Close();
+                        fsDst.Dispose();
+                    }
                 }
-            }
 
-            if (!SteamAPI.IsSteamRunning())
-            {
-                // steam isn't running so we don't do anything
-                return;
-            }
-
-            if (!SteamAPI.Init())
-            {
                 /**
-                 * This could happen for a number of reason but probably 
-                 * steam_appid.txt not being present or appid being invalid.
-                 */
-                MessageBox.Show(
-                    "[Steamworks.NET] SteamAPI_Init() failed. Refer to Valve's documentation or the comment above this line for more information.",
-                    "Error",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
-                return;
-            }
-
-            if (!SteamUserStats.ResetAllStats(true))
-            {
-                /**
-                 * Please refer to the comment below this line for more information.
+                 * Starts process without stealing focus
                  */ 
+                Process p = new Process();
+                p.StartInfo = new ProcessStartInfo(path, appId.ToString());
+                p.StartInfo.WorkingDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Components");
+                p.StartInfo.CreateNoWindow = true;
+                p.StartInfo.UseShellExecute = false;
+                p.Start();
+            }
+            catch (Win32Exception)
+            {
                 MessageBox.Show(
-                    "[Steamworks.NET] SteamUserStats.ResetAllStats(true) failed. Refer to Valve's documentation or the comment above this line for more information.",
+                    "Failed to start ResetAllStats.exe.",
                     "Error",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
+            } finally
+            {
+                File.Delete(path);
             }
-
-            SteamAPI.Shutdown();
         }
 
         public override void Dispose()

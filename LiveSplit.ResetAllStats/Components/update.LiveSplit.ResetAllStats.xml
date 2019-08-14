@@ -5,6 +5,16 @@
     </files>
     <changelog>
       <change>
+        Moved the steam logic to its own program.
+      </change>
+    </changelog>
+  </update>
+  <update version="2.0.0.0">
+    <files>
+      <file path="Components/LiveSplit.ResetAllStats.dll" status="changed" />
+    </files>
+    <changelog>
+      <change>
         Switch from onReset to onStart.
       </change>
       <change>
