@@ -1,5 +1,5 @@
 ﻿<updates>
-  <update version="2.0.0.0">
+  <update version="3.0.0.0">
     <files>
       <file path="Components/LiveSplit.ResetAllStats.dll" status="changed" />
     </files>
