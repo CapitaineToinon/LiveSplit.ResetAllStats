@@ -8,6 +8,7 @@ using LiveSplit.ResetAllStats.UI;
 using System.IO;
 using System.Diagnostics;
 using System.ComponentModel;
+using System.Threading.Tasks;
 
 namespace LiveSplit.ResetAllStats
 {
@@ -25,54 +26,63 @@ namespace LiveSplit.ResetAllStats
             this._state.OnStart += _state_OnStart;
         }
 
-        private void _state_OnStart(object sender, EventArgs e)
+        private async void _state_OnStart(object sender, EventArgs e)
         {
-            uint appId = this._settings.AppId;
-
-            if (appId == 0)
+            //Run the .exe async so that it does not block livesplit
+            await Task.Run(() =>
             {
-                return;
-            }
+                uint appId = this._settings.AppId;
 
-            string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Components\\ResetAllStats.exe");
-
-            try
-            {
-                if (!File.Exists(path))
+                if (appId == 0)
                 {
-                    object ob = Properties.Resources.ResourceManager.GetObject("ResetAllStats");
-                    byte[] myResBytes = (byte[])ob;
-
-                    using (FileStream fsDst = new FileStream(path, FileMode.CreateNew, FileAccess.Write))
-                    {
-                        byte[] bytes = myResBytes;
-                        fsDst.Write(bytes, 0, bytes.Length);
-                        fsDst.Close();
-                        fsDst.Dispose();
-                    }
+                    return;
                 }
 
-                /**
-                 * Starts process without stealing focus
-                 */ 
-                Process p = new Process();
-                p.StartInfo = new ProcessStartInfo(path, appId.ToString());
-                p.StartInfo.WorkingDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Components");
-                p.StartInfo.CreateNoWindow = true;
-                p.StartInfo.UseShellExecute = false;
-                p.Start();
-            }
-            catch (Win32Exception)
-            {
-                MessageBox.Show(
-                    "Failed to start ResetAllStats.exe.",
-                    "Error",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
-            } finally
-            {
-                File.Delete(path);
-            }
+                string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Components\\ResetAllStats.exe");
+
+                try
+                {
+                    if (!File.Exists(path))
+                    {
+                        object ob = Properties.Resources.ResourceManager.GetObject("ResetAllStats");
+                        byte[] myResBytes = (byte[])ob;
+
+                        using (FileStream fsDst = new FileStream(path, FileMode.CreateNew, FileAccess.Write))
+                        {
+                            byte[] bytes = myResBytes;
+                            fsDst.Write(bytes, 0, bytes.Length);
+                            fsDst.Close();
+                            fsDst.Dispose();
+                        }
+                    }
+
+                    /**
+                     * Starts process without stealing focus
+                     */
+                    Process p = new Process();
+                    p.StartInfo = new ProcessStartInfo(path, appId.ToString());
+                    p.StartInfo.WorkingDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Components");
+                    p.StartInfo.CreateNoWindow = true;
+                    p.StartInfo.UseShellExecute = false;
+                    p.Start();
+
+                    //Deleting the file further ahead is not possible when the .exe is still running. this will actually prevent timers from starting.
+                    //thats why we must wait for the process to exit
+                    p.WaitForExit(10000);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(
+                        $"Failed to start ResetAllStats.exe. {ex.Message}",
+                        "Error",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
+                }
+                finally
+                {
+                    File.Delete(path);
+                }
+            });
         }
 
         public override void Dispose()
