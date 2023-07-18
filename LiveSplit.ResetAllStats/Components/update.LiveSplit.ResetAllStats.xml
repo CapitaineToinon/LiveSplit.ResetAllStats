@@ -1,5 +1,15 @@
 ﻿<updates>
-  <update version="3.0.0.0">
+	<update version="4.0.0.0">
+		<files>
+			<file path="Components/LiveSplit.ResetAllStats.dll" status="changed" />
+		</files>
+		<changelog>
+			<change>
+				Fixed a potential timing issue
+			</change>
+		</changelog>
+	</update>
+	<update version="3.0.0.0">
     <files>
       <file path="Components/LiveSplit.ResetAllStats.dll" status="changed" />
     </files>
